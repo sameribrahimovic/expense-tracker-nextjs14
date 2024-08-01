@@ -21,6 +21,7 @@ import {
 import { Currencies, Currency } from "@/lib/currencies";
 import { useQuery } from "@tanstack/react-query";
 import SkeletonWrapper from "./SkeletonWrapper";
+import { UserSettings } from "@prisma/client";
 
 export function CurrencyComboBox() {
   const [open, setOpen] = React.useState(false);
@@ -28,10 +29,18 @@ export function CurrencyComboBox() {
   const [selectedOption, setSelectedOption] = React.useState<Currency | null>(
     null
   );
-  const userSettings = useQuery({
+  const userSettings = useQuery<UserSettings>({
     queryKey: ["userSettings"],
     queryFn: async () => fetch("/api/user-settings").then((res) => res.json()),
   });
+
+  React.useEffect(() => {
+    if (!userSettings.data) return;
+    const userCurrency = Currencies.find(
+      (currency) => currency.value === userSettings.data.currency
+    );
+    if (userCurrency) setSelectedOption(userCurrency);
+  }, [userSettings.data]);
 
   if (isDesktop) {
     return (
