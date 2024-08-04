@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import React from "react";
+import CreateTransactionDialog from "./_components/CreateTransactionDialog";
 
 async function page() {
   const user = await currentUser();
@@ -25,12 +26,22 @@ async function page() {
         <div className="container flex flex-wrap items-center justify-between gap-6 py-8">
           <p className="text-3xl font-bold">Hello, {user.firstName}! 👏</p>
           <div className="flex items-center gap-3">
-            <Button className="border-emerald-500 bg-emerald-950 text-white hover:bg-emerald-700 hover:text-white">
-              New Income 😊
-            </Button>
-            <Button className="border-rose-500 bg-rose-950 text-white hover:bg-rose-700 hover:text-white">
-              New Expense 😔
-            </Button>
+            <CreateTransactionDialog
+              trigger={
+                <Button className="border-emerald-500 bg-emerald-950 text-white hover:bg-emerald-700 hover:text-white">
+                  New Income 😊
+                </Button>
+              }
+              type="income"
+            ></CreateTransactionDialog>
+            <CreateTransactionDialog
+              trigger={
+                <Button className="border-rose-500 bg-rose-950 text-white hover:bg-rose-700 hover:text-white">
+                  New Expense 😔
+                </Button>
+              }
+              type="expense"
+            ></CreateTransactionDialog>
           </div>
         </div>
       </div>
