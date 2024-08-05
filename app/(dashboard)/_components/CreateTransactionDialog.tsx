@@ -12,7 +12,7 @@ import {
   CreateTransactionSchema,
   CreateTransactionSchemaType,
 } from "@/schema/transaction";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import CategoryPicker from "./CategoryPicker";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   trigger: ReactNode;
@@ -39,6 +40,17 @@ function CreateTransactionDialog({ trigger, type }: Props) {
       date: new Date(),
     },
   });
+
+  const [open, setOpen] = useState(false);
+  const handleCategoryChange = useCallback(
+    (value: string) => {
+      form.setValue("category", value);
+    },
+    [form]
+  );
+
+  const queryClient = useQueryClient();
+
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -97,7 +109,10 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                   <FormItem>
                     <FormLabel className="mr-2">Category</FormLabel>
                     <FormControl>
-                      <CategoryPicker type={type} />
+                      <CategoryPicker
+                        type={type}
+                        onChange={handleCategoryChange}
+                      />
                     </FormControl>
                     <FormDescription>
                       Select category for this transaction
