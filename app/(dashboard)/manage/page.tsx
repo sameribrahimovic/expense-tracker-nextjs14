@@ -11,13 +11,14 @@ import {
 } from "@/components/ui/card";
 import { TransactionType } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
-import { PlusSquare, TrendingDown, TrendingUp } from "lucide-react";
+import { PlusSquare, TrashIcon, TrendingDown, TrendingUp } from "lucide-react";
 import React from "react";
 import CreateCategoryDialog from "../_components/CreateCategoryDialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Category } from "@prisma/client";
 import { cn } from "@/lib/utils";
+import DeleteCategoryDialog from "../_components/DeleteCategoryDialog";
 
 function page() {
   return (
@@ -136,6 +137,18 @@ function CategoryCard({ category }: { category: Category }) {
         </span>
         <span>{category.name}</span>
       </div>
+      <DeleteCategoryDialog
+        category={category}
+        trigger={
+          <Button
+            className="flex w-full border-separate items-center gap-2 rounded-t-none text-muted-foreground hover:bg-red-500/20"
+            variant={"secondary"}
+          >
+            <TrashIcon className="h-4 w-4" />
+            Remove
+          </Button>
+        }
+      />
     </div>
   );
 }
