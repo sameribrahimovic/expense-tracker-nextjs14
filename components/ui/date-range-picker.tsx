@@ -344,10 +344,10 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
       }}
     >
       <PopoverTrigger asChild>
-        <Button size={"lg"} variant="outline">
-          <div className="text-right">
+        <Button size={"lg"} variant="outline" className="w-full sm:w-auto justify-between">
+          <div className="text-left sm:text-right flex-1 min-w-0">
             <div className="py-1">
-              <div>{`${formatDate(range.from, locale)}${
+              <div className="text-sm sm:text-base truncate">{`${formatDate(range.from, locale)}${
                 range.to != null ? " - " + formatDate(range.to, locale) : ""
               }`}</div>
             </div>
@@ -362,7 +362,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
               </div>
             )}
           </div>
-          <div className="pl-1 opacity-60 -mr-2 scale-125">
+          <div className="pl-1 opacity-60 -mr-2 scale-125 flex-shrink-0">
             {isOpen ? (
               <ChevronUpIcon width={24} />
             ) : (
@@ -371,11 +371,11 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align={align} className="w-auto">
-        <div className="flex py-2">
-          <div className="flex">
-            <div className="flex flex-col">
-              <div className="flex flex-col lg:flex-row gap-2 px-3 justify-end items-center lg:items-start pb-4 lg:pb-0">
+      <PopoverContent align={align} className="w-[calc(100vw-2rem)] sm:w-auto max-w-[calc(100vw-2rem)] sm:max-w-none p-2 sm:p-4">
+        <div className="flex py-2 overflow-x-auto">
+          <div className="flex min-w-0">
+            <div className="flex flex-col w-full">
+              <div className="flex flex-col lg:flex-row gap-2 px-1 sm:px-3 justify-end items-center lg:items-start pb-4 lg:pb-0">
                 {showCompare && (
                   <div className="flex items-center space-x-2 pr-4 py-1">
                     <Switch

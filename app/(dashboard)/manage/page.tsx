@@ -25,10 +25,10 @@ function page() {
     <>
       {/* HEADER */}
       <div className="border-b bg-card">
-        <div className="container flex flex-wrap items-center justify-between gap-6 py-8">
+        <div className="container flex flex-wrap items-center justify-between gap-6 py-6 sm:py-8">
           <div>
-            <p className="text-3xl font-bold">Manage</p>
-            <p className="text-muted-foreground">
+            <p className="text-2xl sm:text-3xl font-bold">Manage</p>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Manage your account settings and categories
             </p>
           </div>
@@ -68,16 +68,18 @@ function CategoryList({ type }: { type: TransactionType }) {
     <SkeletonWrapper isLoading={categoriesQuery.isLoading}>
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between gap-2">
+          <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-2">
             <div className="flex items-center gap-2">
               {type === "expense" ? (
-                <TrendingDown className="h-12 w-12 items-center rounded-lg bg-red-400/10 p-2 text-red-500" />
+                <TrendingDown className="h-10 w-10 sm:h-12 sm:w-12 items-center rounded-lg bg-red-400/10 p-2 text-red-500 flex-shrink-0" />
               ) : (
-                <TrendingUp className="h-12 w-12 items-center rounded-lg bg-emerald-400/10 p-2 text-emerald-500" />
+                <TrendingUp className="h-10 w-10 sm:h-12 sm:w-12 items-center rounded-lg bg-emerald-400/10 p-2 text-emerald-500 flex-shrink-0" />
               )}
-              <div>
-                {type === "income" ? "Incomes" : "Expenses"} categories
-                <div className="text-sm text-muted-foreground">
+              <div className="min-w-0">
+                <div className="text-base sm:text-lg font-semibold">
+                  {type === "income" ? "Incomes" : "Expenses"} categories
+                </div>
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   Sorted by name
                 </div>
               </div>
@@ -87,9 +89,10 @@ function CategoryList({ type }: { type: TransactionType }) {
               type={type}
               successCallback={() => categoriesQuery.refetch()}
               trigger={
-                <Button className="gap-2 text-sm">
+                <Button className="gap-2 text-sm w-full sm:w-auto flex-shrink-0">
                   <PlusSquare className="h-4 w-4" />
-                  Create category
+                  <span className="hidden sm:inline">Create category</span>
+                  <span className="sm:hidden">Create</span>
                 </Button>
               }
             />

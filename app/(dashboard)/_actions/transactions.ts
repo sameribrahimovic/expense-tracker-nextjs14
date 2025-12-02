@@ -7,6 +7,8 @@ import {
 } from "@/schema/transaction";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { Transaction } from "@prisma/client";
+import { DateToUTCDate } from "@/lib/helpers";
 
 export async function CreateTransaction(form: CreateTransactionSchemaType) {
   const parsedBody = CreateTransactionSchema.safeParse(form);
@@ -101,4 +103,71 @@ export async function CreateTransaction(form: CreateTransactionSchemaType) {
       },
     }),
   ]);
+}
+
+export async function GetTransactions({
+  page = 1,
+  pageSize = 10,
+  type,
+  from,
+  to,
+  sortBy = "date",
+  sortOrder = "desc",
+}: {
+  page?: number;
+  pageSize?: number;
+  type?: "income" | "expense";
+  from?: Date;
+  to?: Date;
+  sortBy?: "date" | "amount" | "category";
+  sortOrder?: "asc" | "desc";
+}): Promise<{
+  transactions: Transaction[];
+  total: number;
+  totalPages: number;
+}> {
+  const user = await currentUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const where: any = {
+    userId: user.id,
+  };
+
+  if (type) {
+    where.type = type;
+  }
+
+  if (from || to) {
+    where.date = {};
+    if (from) {
+      where.date.gte = DateToUTCDate(from);
+    }
+    if (to) {
+      // Set to end of day for the 'to' date
+      const endOfDay = new Date(to);
+      endOfDay.setHours(23, 59, 59, 999);
+      where.date.lte = DateToUTCDate(endOfDay);
+    }
+  }
+
+  const orderBy: any = {};
+  orderBy[sortBy] = sortOrder;
+
+  const [transactions, total] = await Promise.all([
+    prisma.transaction.findMany({
+      where,
+      orderBy,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.transaction.count({ where }),
+  ]);
+
+  return {
+    transactions,
+    total,
+    totalPages: Math.ceil(total / pageSize),
+  };
 }

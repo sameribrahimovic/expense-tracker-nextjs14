@@ -109,7 +109,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Craeta new{" "}
+            Create new{" "}
             <span
               className={cn(
                 "m-1",
@@ -153,12 +153,12 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                 </FormItem>
               )}
             />
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-2">
               <FormField
                 control={form.control}
                 name="category"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem className="flex flex-col flex-1">
                     <FormLabel className="mr-2">Category</FormLabel>
                     <FormControl>
                       <CategoryPicker
@@ -176,7 +176,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                 control={form.control}
                 name="date"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem className="flex flex-col flex-1 sm:flex-initial">
                     <FormLabel>Transaction date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -184,7 +184,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "w-[200px] pl-3 text-left font-normal",
+                              "w-full sm:w-[200px] pl-3 text-left font-normal",
                               !field.value && "text-muted-foreground"
                             )}
                           >
@@ -197,7 +197,7 @@ function CreateTransactionDialog({ trigger, type }: Props) {
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
+                      <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
                           selected={field.value}
