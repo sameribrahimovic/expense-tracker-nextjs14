@@ -25,16 +25,25 @@ import { cn } from "@/lib/utils";
 interface Props {
   type: TransactionType;
   onChange: (value: string) => void;
+  value?: string;
 }
 
-function CategoryPicker({ type, onChange }: Props) {
+function CategoryPicker({ type, onChange, value: initialValue }: Props) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [value, setValue] = React.useState(initialValue || "");
+
+  // Update internal value when initialValue prop changes
+  useEffect(() => {
+    if (initialValue !== undefined && initialValue !== value) {
+      setValue(initialValue);
+    }
+  }, [initialValue, value]);
 
   useEffect(() => {
-    if (!value) return;
-    // when the value changes, call onChange callback
-    onChange(value);
+    if (value) {
+      // when the value changes, call onChange callback
+      onChange(value);
+    }
   }, [onChange, value]);
 
   const categoriesQuery = useQuery({

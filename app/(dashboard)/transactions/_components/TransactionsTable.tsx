@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { UserSettings } from "@prisma/client";
 import { GetTransactions } from "../../_actions/transactions";
 import { Transaction } from "@prisma/client";
@@ -24,8 +24,10 @@ import {
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { GetFormatterForCurrency } from "@/lib/helpers";
 import { format } from "date-fns";
-import { ArrowUpDown, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, TrendingUp, TrendingDown, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import EditTransactionDialog from "./EditTransactionDialog";
+import DeleteTransactionDialog from "./DeleteTransactionDialog";
 import {
   Pagination,
   PaginationContent,
@@ -65,35 +67,35 @@ function TransactionsTable({ userSettings }: Props) {
 
   const formatter = GetFormatterForCurrency(userSettings.currency);
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      setLoading(true);
-      try {
-        const result = await GetTransactions({
-          page,
-          pageSize,
-          type: typeFilter === "all" ? undefined : typeFilter,
-          from: dateRange.from || undefined,
-          to: dateRange.to || undefined,
-          sortBy,
-          sortOrder,
-        });
-        setTransactions(result.transactions);
-        setTotal(result.total);
-        setTotalPages(result.totalPages);
-      } catch (error) {
-        toast.error("Failed to fetch transactions");
-        console.error("Error fetching transactions:", error);
-        setTransactions([]);
-        setTotal(0);
-        setTotalPages(0);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTransactions();
+  const fetchTransactions = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await GetTransactions({
+        page,
+        pageSize,
+        type: typeFilter === "all" ? undefined : typeFilter,
+        from: dateRange.from || undefined,
+        to: dateRange.to || undefined,
+        sortBy,
+        sortOrder,
+      });
+      setTransactions(result.transactions);
+      setTotal(result.total);
+      setTotalPages(result.totalPages);
+    } catch (error) {
+      toast.error("Failed to fetch transactions");
+      console.error("Error fetching transactions:", error);
+      setTransactions([]);
+      setTotal(0);
+      setTotalPages(0);
+    } finally {
+      setLoading(false);
+    }
   }, [page, pageSize, typeFilter, dateRange.from, dateRange.to, sortBy, sortOrder, userSettings.currency]);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
 
   const handleSort = (column: SortBy) => {
     if (sortBy === column) {
@@ -285,6 +287,38 @@ function TransactionsTable({ userSettings }: Props) {
                               {formatter.format(Math.abs(transaction.amount))}
                             </span>
                           </div>
+
+                          {/* Actions Row */}
+                          <div className="flex items-center justify-end gap-2 pt-2 border-t pl-11">
+                            <EditTransactionDialog
+                              transaction={transaction}
+                              onSuccess={fetchTransactions}
+                              trigger={
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex-1 sm:flex-initial"
+                                >
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Edit
+                                </Button>
+                              }
+                            />
+                            <DeleteTransactionDialog
+                              transaction={transaction}
+                              onSuccess={fetchTransactions}
+                              trigger={
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex-1 sm:flex-initial text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </Button>
+                              }
+                            />
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -332,6 +366,7 @@ function TransactionsTable({ userSettings }: Props) {
                           <SortIcon column="amount" />
                         </Button>
                       </TableHead>
+                      <TableHead className="w-[100px] text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -383,6 +418,34 @@ function TransactionsTable({ userSettings }: Props) {
                                 {transaction.type === "income" ? "+" : "-"}
                                 {formatter.format(Math.abs(transaction.amount))}
                               </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <EditTransactionDialog
+                                transaction={transaction}
+                                onSuccess={fetchTransactions}
+                                trigger={
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                    <Edit className="h-4 w-4" />
+                                    <span className="sr-only">Edit transaction</span>
+                                  </Button>
+                                }
+                              />
+                              <DeleteTransactionDialog
+                                transaction={transaction}
+                                onSuccess={fetchTransactions}
+                                trigger={
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                    <span className="sr-only">Delete transaction</span>
+                                  </Button>
+                                }
+                              />
                             </div>
                           </TableCell>
                         </TableRow>
