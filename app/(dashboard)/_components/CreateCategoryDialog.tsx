@@ -25,6 +25,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { TransactionType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -51,6 +53,8 @@ interface Props {
 
 function CreateCategoryDialog({ type, successCallback, trigger }: Props) {
   const [open, setOpen] = useState(false);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const form = useForm<CreateCategorySchemaType>({
     resolver: zodResolver(CreateCategorySchema),
@@ -157,43 +161,94 @@ function CreateCategoryDialog({ type, successCallback, trigger }: Props) {
                 <FormItem>
                   <FormLabel>Icon</FormLabel>
                   <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className="h-[100px] w-full"
+                    {isDesktop ? (
+                      <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className="h-[100px] w-full"
+                          >
+                            {/* form.watch() to get current selected icon */}
+                            {form.watch("icon") ? (
+                              <div className="flex flex-col items-center gap-2">
+                                <span className="text-5xl" role="img">
+                                  {field.value}
+                                </span>
+                                <p className="text-xs text-muted-foreground">
+                                  Click to change
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center gap-2">
+                                <CircleOff className="h-[48px] w-[48px]" />
+                                <p className="text-xs text-muted-foreground">
+                                  Click to select
+                                </p>
+                              </div>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                          className="w-[350px] p-0 max-h-[80vh] overflow-hidden" 
+                          align="start"
+                          side="bottom"
+                          sideOffset={8}
                         >
-                          {/* form.watch() to get current selected icon */}
-                          {form.watch("icon") ? (
-                            <div className="flex flex-col items-center gap-2">
-                              <span className="text-5xl" role="img">
-                                {field.value}
-                              </span>
-                              <p className="text-xs text-muted-foreground">
-                                Click to change
-                              </p>
+                          <div className="max-h-[400px] overflow-y-auto">
+                            <Picker
+                              data={data}
+                              theme={theme.resolvedTheme}
+                              onEmojiSelect={(emoji: { native: string }) => {
+                                field.onChange(emoji.native);
+                                setEmojiPickerOpen(false);
+                              }}
+                            />
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    ) : (
+                      <Drawer open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
+                        <DrawerTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className="h-[100px] w-full"
+                          >
+                            {/* form.watch() to get current selected icon */}
+                            {form.watch("icon") ? (
+                              <div className="flex flex-col items-center gap-2">
+                                <span className="text-5xl" role="img">
+                                  {field.value}
+                                </span>
+                                <p className="text-xs text-muted-foreground">
+                                  Click to change
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center gap-2">
+                                <CircleOff className="h-[48px] w-[48px]" />
+                                <p className="text-xs text-muted-foreground">
+                                  Click to select
+                                </p>
+                              </div>
+                            )}
+                          </Button>
+                        </DrawerTrigger>
+                        <DrawerContent>
+                          <div className="mx-auto w-full max-w-sm">
+                            <div className="max-h-[70vh] overflow-y-auto">
+                              <Picker
+                                data={data}
+                                theme={theme.resolvedTheme}
+                                onEmojiSelect={(emoji: { native: string }) => {
+                                  field.onChange(emoji.native);
+                                  setEmojiPickerOpen(false);
+                                }}
+                              />
                             </div>
-                          ) : (
-                            <div className="flex flex-col items-center gap-2">
-                              <CircleOff className="h-[48px] w-[48px]" />
-                              <p className="text-xs text-muted-foreground">
-                                Click to select
-                              </p>
-                            </div>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full">
-                        <Picker
-                          data={data}
-                          //emoji window to be white on light theme
-                          theme={theme.resolvedTheme}
-                          onEmojiSelect={(emoji: { native: string }) => {
-                            field.onChange(emoji.native);
-                          }}
-                        ></Picker>
-                      </PopoverContent>
-                    </Popover>
+                          </div>
+                        </DrawerContent>
+                      </Drawer>
+                    )}
                   </FormControl>
                   <FormDescription>
                     This is how your category will appear in the app
